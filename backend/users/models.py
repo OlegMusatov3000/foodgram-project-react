@@ -10,12 +10,23 @@ class User(AbstractUser):
         '''Тип пользователей.'''
 
         GUEST = 'guest', _('Анонимный пользователь')
-        MODERATOR = 'moderator', _('Модератор')
-        ADMIN = 'admin', _('Админ')
+        AUTHORIZED_USER = 'authorized user', _('Авторизованный пользователь')
+        ADMINISTRATOR = 'administrator', _('Aдминистратор')
 
     role = models.TextField(
         'Пользовательская роль',
-        blank=True,
         choices=UsersType.choices,
-        default=UsersType.GUEST
+        default=UsersType.AUTHORIZED_USER
     )
+
+    def save(self, *args, **kwargs):
+        if (
+            not self.pk
+            and self.is_superuser
+        ):
+            print(1)
+            self.role = self.UsersType.ADMINISTRATOR
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.username}'
