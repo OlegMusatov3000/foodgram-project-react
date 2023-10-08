@@ -24,7 +24,6 @@ class User(AbstractUser):
             not self.pk
             and self.is_superuser
         ):
-            print(1)
             self.role = self.UsersType.ADMINISTRATOR
         super().save(*args, **kwargs)
 
