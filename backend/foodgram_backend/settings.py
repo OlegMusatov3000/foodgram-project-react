@@ -1,4 +1,4 @@
-import os, sys
+import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -6,7 +6,12 @@ SECRET_KEY = 'django-insecure-cwcj&+&el405^=w^wy27x*je0!*jhp919l21c4$7-u32fpe=zp
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    'testserver',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,6 +26,9 @@ INSTALLED_APPS = [
     'favorites.apps.FavoritesConfig',
     'purchases.apps.PurchasesConfig',
     'api.apps.ApiConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
 
 ]
 
@@ -76,6 +84,24 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.CustomUserCreateSerializer'
+    },
+}
+
+
 LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'Asia/Tomsk'
@@ -94,4 +120,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
-
