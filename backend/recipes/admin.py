@@ -36,17 +36,17 @@ class RecipeTagInline(admin.StackedInline):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'color_code', 'slug')
-    list_display_links = ('name', 'color_code', 'slug')
-    search_fields = ('name', 'color_code', 'slug')
+    list_display = ('name', 'color', 'slug')
+    list_display_links = ('name', 'color', 'slug')
+    search_fields = ('name', 'color', 'slug')
     inlines = (RecipeTagInline,)
     save_on_top = True
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'units')
-    list_display_links = ('name', 'units')
+    list_display = ('name', 'measurement_unit')
+    list_display_links = ('name', 'measurement_unit')
     list_filter = ('name',)
     search_fields = ('name',)
     exclude = ('quantity',)

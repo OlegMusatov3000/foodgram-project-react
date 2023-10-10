@@ -1,17 +1,26 @@
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.core.validators import RegexValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
+
 
 User = get_user_model()
 
 
 class Tag(models.Model):
-    name = models.CharField('Название', max_length=255, unique=True)
-    color_code = models.CharField(
-        'Цветовой код', max_length=7, default='#49B64E', unique=True
+    name = models.CharField('Название', max_length=200, unique=True)
+    color = models.CharField(
+        'Цветовой код', max_length=7, default='#49B64E', unique=True,
+        help_text='Цвет в HEX'
     )
-    slug = models.SlugField('Слаг', max_length=255, unique=True)
+    slug = models.SlugField(
+        'Слаг', max_length=250, unique=True,
+        validators=[RegexValidator(
+            r'^[-a-zA-Z0-9_]+$', _('Enter a valid slug.'), 'invalid'
+        )]
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -27,9 +36,9 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField('Название', max_length=255)
-    quantity = models.PositiveSmallIntegerField('Количество')
-    units = models.CharField('ед. измерения', max_length=50)
+    name = models.CharField('Название', max_length=200)
+    quantity = models.PositiveSmallIntegerField('Количество', null=True)
+    measurement_unit = models.CharField('ед. измерения', max_length=200)
 
     class Meta:
         verbose_name = 'Ингредиент'

@@ -10,10 +10,10 @@ admin.site.unregister(Group)
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     list_display = (
-        'username', 'first_name', 'last_name',
+        'id', 'username', 'first_name', 'last_name',
         'email', 'is_active', 'role'
     )
-    list_display_links = ('username', 'first_name', 'last_name', 'email')
+    list_display_links = ('id', 'username', 'first_name', 'last_name', 'email')
     list_editable = ('is_active', 'role')
     search_fields = ('username', 'last_name', 'email')
     list_filter = ('email', 'username', 'is_active', 'role')
