@@ -3,8 +3,10 @@ from rest_framework.permissions import (
     AllowAny,
 )
 
-from recipes.models import Tag, Ingredient
-from recipes.serializers import TagSerializer, IngredientSerializer
+from recipes.models import Tag, Ingredient, Recipe
+from recipes.serializers import (
+    TagSerializer, IngredientSerializer, RecipeSerializer,
+)
 
 
 class TagViewSet(
@@ -23,3 +25,18 @@ class IngredientViewSet(
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    permission_classes = (AllowAny,)
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'partial_update'):
+            return RecipeSerializer
+        return super().get_serializer_class()
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

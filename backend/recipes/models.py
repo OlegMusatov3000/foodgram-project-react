@@ -10,6 +10,7 @@ User = get_user_model()
 
 
 class Tag(models.Model):
+
     name = models.CharField('Название', max_length=200, unique=True)
     color = models.CharField(
         'Цветовой код', max_length=7, default='#49B64E', unique=True,
@@ -36,8 +37,8 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
+
     name = models.CharField('Название', max_length=200)
-    quantity = models.PositiveSmallIntegerField('Количество', null=True)
     measurement_unit = models.CharField('ед. измерения', max_length=200)
 
     class Meta:
@@ -49,24 +50,29 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    author = models.ForeignKey(
-        User, verbose_name='Автор рецепта', on_delete=models.CASCADE
-    )
-    title = models.CharField('Название', max_length=255)
-    image = models.ImageField('Картинка', upload_to=settings.MEDIA_FOR_RECIPES)
-    description = models.TextField('Описание')
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        through='RecipeIngredient',
-        related_name='recipes',
-        verbose_name='Рецепт'
-    )
+
     tags = models.ManyToManyField(
         Tag,
         through='RecipeTag',
         related_name='recipes',
         verbose_name='Тег'
     )
+    author = models.ForeignKey(
+        User, related_name='recipes', verbose_name='Автор рецепта', on_delete=models.CASCADE
+    )
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        through='RecipeIngredient',
+        related_name='recipes',
+        verbose_name='Рецепт'
+    )
+    is_favorited = models.BooleanField('Находится ли в избранном', default=False)
+    is_in_shopping_cart = models.BooleanField(
+        'Находится ли в корзине', default=False
+    )
+    name = models.CharField('Название', max_length=255)
+    image = models.ImageField('Картинка', upload_to=settings.MEDIA_FOR_RECIPES)
+    text = models.TextField('Описание')
     cooking_time = models.PositiveIntegerField('Время приготовления')
 
     class Meta:
@@ -74,13 +80,15 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class RecipeIngredient(models.Model):
+
     recipe = models.ForeignKey(
         Recipe, verbose_name='Рецепт', on_delete=models.CASCADE
     )
+    amount = models.PositiveSmallIntegerField('Количество', blank=True)
     ingredient = models.ForeignKey(
         Ingredient, verbose_name='Ингредиент', on_delete=models.CASCADE
     )
@@ -90,11 +98,12 @@ class RecipeIngredient(models.Model):
 
 
 class RecipeTag(models.Model):
+
     recipe = models.ForeignKey(
         Recipe, verbose_name='Рецепт', on_delete=models.CASCADE
     )
     tag = models.ForeignKey(
-        Tag, verbose_name='Ингредиент', on_delete=models.CASCADE
+        Tag, verbose_name='Тег', on_delete=models.CASCADE
     )
 
     class Meta:

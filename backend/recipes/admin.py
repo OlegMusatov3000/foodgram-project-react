@@ -56,10 +56,10 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'get_photo_preview')
-    list_display_links = ('title', 'author')
-    list_filter = ('title', 'author', 'tags')
-    search_fields = ('title', 'author')
+    list_display = ('name', 'author', 'get_photo_preview')
+    list_display_links = ('name', 'author')
+    list_filter = ('name', 'author', 'tags')
+    search_fields = ('name', 'author')
     inlines = (RecipeIngredientInline, RecipeTagInline)
     exclude = ('author',)
     save_on_top = True
