@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
@@ -58,7 +58,8 @@ class Recipe(models.Model):
         verbose_name='Тег'
     )
     author = models.ForeignKey(
-        User, related_name='recipes', verbose_name='Автор рецепта', on_delete=models.CASCADE
+        User, related_name='recipes',
+        verbose_name='Автор рецепта', on_delete=models.CASCADE
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -66,14 +67,12 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Рецепт'
     )
-    is_favorited = models.BooleanField('Находится ли в избранном', default=False)
-    is_in_shopping_cart = models.BooleanField(
-        'Находится ли в корзине', default=False
-    )
     name = models.CharField('Название', max_length=255)
     image = models.ImageField('Картинка', upload_to=settings.MEDIA_FOR_RECIPES)
     text = models.TextField('Описание')
-    cooking_time = models.PositiveIntegerField('Время приготовления')
+    cooking_time = models.PositiveSmallIntegerField(
+        'Время приготовления', validators=[MinValueValidator(1)]
+    )
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -86,9 +85,13 @@ class Recipe(models.Model):
 class RecipeIngredient(models.Model):
 
     recipe = models.ForeignKey(
-        Recipe, verbose_name='Рецепт', on_delete=models.CASCADE
+        Recipe, verbose_name='Рецепт', on_delete=models.CASCADE,
+        related_name='recipe_ingredient'
     )
-    amount = models.PositiveSmallIntegerField('Количество', blank=True)
+    amount = models.PositiveSmallIntegerField(
+        'Количество',
+        validators=[MinValueValidator(1)]
+    )
     ingredient = models.ForeignKey(
         Ingredient, verbose_name='Ингредиент', on_delete=models.CASCADE
     )

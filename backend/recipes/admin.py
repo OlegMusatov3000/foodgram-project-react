@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
+
+from favorites.models import Favorite
 from .models import Tag, Ingredient, Recipe, RecipeIngredient, RecipeTag
 
 User = get_user_model()
@@ -71,7 +73,9 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ('author', 'get_photo_preview')
+            return (
+                'author', 'get_photo_preview', 'get_number_of_favorites_added'
+            )
         return ()
 
     def get_photo_preview(self, obj):
@@ -81,3 +85,10 @@ class RecipeAdmin(admin.ModelAdmin):
             'style="max-width: 100px; max-height: 100px;"/></a>'
         )
     get_photo_preview.short_description = 'Как пользователь видит картинку'
+
+    def get_number_of_favorites_added(self, obj):
+        return Favorite.objects.filter(recipe=obj).count()
+
+    get_number_of_favorites_added.short_description = (
+        'Число добавлений в избранное'
+    )
