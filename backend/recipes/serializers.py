@@ -5,7 +5,6 @@ from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-
 from recipes.models import Tag, Ingredient, Recipe, RecipeIngredient
 from favorites.models import Favorite
 from purchases.models import Purchase
@@ -63,7 +62,7 @@ class RecipeIngredientReadOnlySerializer(serializers.ModelSerializer):
         model = RecipeIngredient
 
 
-class RecipeSerializerReadOnly(serializers.ModelSerializer):
+class RecipeReadOnlySerializer(serializers.ModelSerializer):
     """Сериализатор рецептов."""
 
     ingredients = RecipeIngredientReadOnlySerializer(
@@ -160,8 +159,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
-        serializers = RecipeSerializerReadOnly(
+        return RecipeReadOnlySerializer(
             instance,
             context={'request': self.context.get('request')}
-        )
-        return serializers.data
+        ).data

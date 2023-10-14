@@ -1,13 +1,15 @@
-from rest_framework import viewsets, mixins, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets
 from rest_framework.permissions import (
     AllowAny, IsAuthenticated
 )
-from favorites.utils import generate_shopping_cart_pdf
+
+from .mixins import FavoriteViewSet
+from favorites.models import Favorite
+from favorites.serializers import FavoriteSerializer
 from recipes.models import Tag, Ingredient, Recipe
 from recipes.serializers import (
-    TagSerializer, IngredientSerializer, RecipeSerializerReadOnly,
+    TagSerializer, IngredientSerializer, RecipeReadOnlySerializer,
     RecipeSerializer
 )
 
@@ -34,10 +36,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return RecipeSerializer
-        return RecipeSerializerReadOnly
+        return RecipeReadOnlySerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class FavoriteViewSet(FavoriteViewSet):
+
+    serializer_class = FavoriteSerializer
+    queryset = Favorite.objects.all()
+    permission_classes = (IsAuthenticated,)
+    lookup_field = 'recipe_id'
+
+    def get_recipe(self):
+        return get_object_or_404(Recipe, id=self.kwargs.get(self.lookup_field))
+
+    def perform_create(self, serializer):
+        serializer.save(recipe=self.get_recipe(), user=self.request.user,)
+        serializer.is_valid(raise_exception=True)
+
 
 
 # class ShoppingCartViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
