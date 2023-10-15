@@ -7,3 +7,12 @@ class FavoriteViewSet(
     GenericViewSet
 ):
     pass
+
+
+class SubscriptionViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    GenericViewSet
+):
+    pass

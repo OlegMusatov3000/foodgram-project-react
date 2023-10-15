@@ -102,6 +102,17 @@ class RecipeReadOnlySerializer(serializers.ModelSerializer):
         )
 
 
+class ForSubscriptionsSerializer(RecipeReadOnlySerializer):
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+
+
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     amount = serializers.IntegerField()

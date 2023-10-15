@@ -2,7 +2,8 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from subscriptions.models import Follow
+from subscriptions.models import Subscription
+
 User = get_user_model()
 
 
@@ -19,7 +20,7 @@ class CustomUserSerializer(UserSerializer):
         return (
             self.context.get('request')
             and self.context.get('request').user.is_authenticated
-            and Follow.objects.filter(
+            and Subscription.objects.filter(
                 user=self.context['request'].user,
                 author=obj
             ).exists()

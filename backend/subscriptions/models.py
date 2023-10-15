@@ -4,7 +4,7 @@ from django.db import models
 User = get_user_model()
 
 
-class Follow(models.Model):
+class Subscription(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -21,7 +21,10 @@ class Follow(models.Model):
     class Meta:
         verbose_name = 'Система подписок'
         verbose_name_plural = 'Система подписок'
-        constraints = [models.UniqueConstraint(
-            fields=['user', 'author'],
-            name='unique_following'
-        )]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_following'),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F('author')),
+                name='subscribe to yourself')]

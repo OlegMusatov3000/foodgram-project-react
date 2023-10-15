@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Favorite
+from recipes.models import Recipe
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -26,5 +27,5 @@ class FavoriteSerializer(serializers.ModelSerializer):
         return data
 
     class Meta:
-        model = Favorite
+        model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')

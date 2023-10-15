@@ -1,10 +1,13 @@
+from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from django.contrib.auth import get_user_model
+from rest_framework import viewsets, status
 from rest_framework.permissions import (
     AllowAny, IsAuthenticated
 )
+from rest_framework.response import Response
 
-from .mixins import FavoriteViewSet
+from .mixins import FavoriteViewSet, SubscriptionViewSet
 from favorites.models import Favorite
 from favorites.serializers import FavoriteSerializer
 from recipes.models import Tag, Ingredient, Recipe
@@ -12,6 +15,10 @@ from recipes.serializers import (
     TagSerializer, IngredientSerializer, RecipeReadOnlySerializer,
     RecipeSerializer
 )
+from subscriptions.models import Subscription
+from subscriptions.serializers import SubscriptionSerializer
+
+User = get_user_model()
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -54,9 +61,45 @@ class FavoriteViewSet(FavoriteViewSet):
 
     def perform_create(self, serializer):
         serializer.save(recipe=self.get_recipe(), user=self.request.user,)
+
+
+class SubscriptionViewSet(SubscriptionViewSet):
+
+    serializer_class = SubscriptionSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = 'user_id'
+
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
+
+    def get_author(self):
+        return get_object_or_404(User, id=self.kwargs.get(self.lookup_field))
+
+    def create(self, request, *args, **kwargs):
+        author = self.get_author()
+        user = self.request.user
+        serializer = SubscriptionSerializer(
+                data=request.data,
+                context={'request': request, 'author': author})
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(author=author, user=user)
+            return Response(
+                {'Подписка успешно создана': serializer.data},
+                status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        author = self.get_author()
+        user = self.request.user
+        serializer = SubscriptionSerializer(
+                data=request.data,
+                context={'request': request, 'author': author})
+        if serializer.is_valid(raise_exception=True):
+            Subscription.objects.get(author=author, user=user).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_create(self, serializer):
         serializer.is_valid(raise_exception=True)
-
-
+        serializer.save(author=self.get_author(), user=self.request.user)
 
 # class ShoppingCartViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 #     permission_classes = [IsAuthenticated]
