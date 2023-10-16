@@ -6,8 +6,9 @@ from rest_framework.permissions import (
     AllowAny, IsAuthenticated
 )
 from rest_framework.response import Response
+from djoser.views import UserViewSet
 
-
+from .paginations import CustomPagination
 from .mixins import FavoriteViewSet, SubscriptionViewSet
 from favorites.models import Favorite
 from favorites.serializers import FavoriteSerializer
@@ -23,6 +24,11 @@ from shopping_cart.serializers import ShoppingCartSerializer
 from shopping_cart.utils import generate_shopping_cart_pdf
 
 User = get_user_model()
+
+
+class CustomUserViewSet(UserViewSet):
+
+    pagination_class = CustomPagination
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -43,6 +49,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     queryset = Recipe.objects.all()
     permission_classes = (AllowAny,)
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):

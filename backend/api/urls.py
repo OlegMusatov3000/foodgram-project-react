@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     TagViewSet, IngredientViewSet, RecipeViewSet,
-    FavoriteViewSet, SubscriptionViewSet
+    FavoriteViewSet, SubscriptionViewSet, CustomUserViewSet
 )
 
 app_name = 'api'
@@ -23,6 +23,7 @@ djoser_urls = [
     )
 ]
 urlpatterns = [
+    path('users/', CustomUserViewSet.as_view({'get': 'list'}), name='users'),
     path(
         'recipes/<int:recipe_id>/favorite/',
         FavoriteViewSet.as_view({'post': 'create', 'delete': 'destroy'}),

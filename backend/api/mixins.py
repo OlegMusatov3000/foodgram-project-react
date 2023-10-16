@@ -1,5 +1,7 @@
 from rest_framework.viewsets import mixins, GenericViewSet
 
+from .paginations import CustomPagination
+
 
 class FavoriteViewSet(
     mixins.CreateModelMixin,
@@ -15,4 +17,4 @@ class SubscriptionViewSet(
     mixins.DestroyModelMixin,
     GenericViewSet
 ):
-    pass
+    pagination_class = CustomPagination

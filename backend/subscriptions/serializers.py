@@ -61,3 +61,12 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                         'Произошла ошибка. Вы не были подписаны'
                     )
         return data
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        recipes_limit = self.context['request'].query_params.get('recipes_limit', None)
+        if recipes_limit:
+            author = instance.author
+            recipes = author.recipes.all()[:int(recipes_limit)]
+            ret['recipes'] = RecipeMiniSerializer(recipes, many=True).data
+        return ret
