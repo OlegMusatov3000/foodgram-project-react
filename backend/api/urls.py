@@ -14,14 +14,6 @@ router = DefaultRouter()
 router.register('tags', TagViewSet, basename='tags')
 router.register('ingredients', IngredientViewSet, basename='ingredients')
 router.register('recipes', RecipeViewSet, basename='recipes')
-# router.register(
-#     r'recipes/(?P<recipe_id>\d+)/favorite', FavoriteViewSet,
-#     basename='favorite'
-# )
-# router.register(
-#     'download_shopping_cart', ShoppingCartViewSet,
-#     basename='recipes/download_shopping_cart'
-# )
 
 djoser_urls = [
     path('', include('djoser.urls')),
@@ -31,7 +23,6 @@ djoser_urls = [
     )
 ]
 urlpatterns = [
-    path('', include(router.urls)),
     path(
         'recipes/<int:recipe_id>/favorite/',
         FavoriteViewSet.as_view({'post': 'create', 'delete': 'destroy'}),
@@ -41,8 +32,9 @@ urlpatterns = [
         SubscriptionViewSet.as_view({'get': 'list'}),
         name='subscriptions-list'),
     path(
-        'users/<int:user_id>/subscriptions/',
+        'users/<int:user_id>/subscribe/',
         SubscriptionViewSet.as_view({'post': 'create', 'delete': 'destroy'}),
         name='subscriptions-post/delete'),
     path('', include(djoser_urls)),
+    path('', include(router.urls)),
 ]

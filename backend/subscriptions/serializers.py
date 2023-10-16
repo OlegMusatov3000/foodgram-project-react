@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 
 from .models import Subscription
 from recipes.models import Recipe
-from recipes.serializers import ForSubscriptionsSerializer
+from recipes.serializers import RecipeMiniSerializer
 
 User = get_user_model()
 
@@ -15,7 +15,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
-    recipes = ForSubscriptionsSerializer(
+    recipes = RecipeMiniSerializer(
         source='author.recipes', many=True, read_only=True
     )
     recipes_count = serializers.SerializerMethodField()

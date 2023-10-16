@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from recipes.models import Tag, Ingredient, Recipe, RecipeIngredient
 from favorites.models import Favorite
-from purchases.models import Purchase
+from shopping_cart.models import ShoppingCart
 from users.serializers import CustomUserSerializer
 
 
@@ -95,14 +95,14 @@ class RecipeReadOnlySerializer(serializers.ModelSerializer):
         return (
             self.context.get('request')
             and self.context.get('request').user.is_authenticated
-            and Purchase.objects.filter(
+            and ShoppingCart.objects.filter(
                 user=self.context['request'].user,
                 recipe=obj
             ).exists()
         )
 
 
-class ForSubscriptionsSerializer(RecipeReadOnlySerializer):
+class RecipeMiniSerializer(RecipeReadOnlySerializer):
     class Meta:
         model = Recipe
         fields = (

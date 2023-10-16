@@ -1,17 +1,15 @@
 from rest_framework import serializers
 
 from .models import Favorite
-from recipes.models import Recipe
+from recipes.serializers import RecipeMiniSerializer
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
 
-    id = serializers.PrimaryKeyRelatedField(source='recipe', read_only=True)
-    name = serializers.StringRelatedField(source='recipe.name', read_only=True)
-    image = serializers.ImageField(source='recipe.image', read_only=True)
-    cooking_time = serializers.IntegerField(
-        source='recipe.cooking_time', read_only=True
-    )
+    class Meta:
+        model = Favorite
+        fields = ('recipe', 'user')
+        read_only_fields = ('recipe', 'user')
 
     def validate(self, data):
         if self.context['request'].method == 'POST':
@@ -26,6 +24,8 @@ class FavoriteSerializer(serializers.ModelSerializer):
                 )
         return data
 
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+    def to_representation(self, instance):
+        return RecipeMiniSerializer(
+            instance.recipe,
+            context={'request': self.context.get('request')}
+        ).data
