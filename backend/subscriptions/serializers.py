@@ -64,7 +64,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        recipes_limit = self.context['request'].query_params.get('recipes_limit', None)
+        recipes_limit = self.context['request'].query_params.get(
+            'recipes_limit', None
+        )
         if recipes_limit:
             author = instance.author
             recipes = author.recipes.all()[:int(recipes_limit)]
