@@ -44,7 +44,6 @@ def generate_shopping_cart_pdf(request, user):
 
     p.drawString(100, 750, 'Ваш список покупок:')
 
-    # Add shopping list content
     y = 700
     for line in shopping_list.split('\n'):
         p.drawString(100, y, line)

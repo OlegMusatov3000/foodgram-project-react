@@ -23,17 +23,19 @@ djoser_urls = [
     )
 ]
 urlpatterns = [
-    path('users/', CustomUserViewSet.as_view({'get': 'list', 'post': 'create'}), name='users'),
+    path(
+        'users/subscriptions/',
+        SubscriptionViewSet.as_view({'get': 'list'}),
+        name='subscriptions-list'),
+    path('users/', CustomUserViewSet.as_view(
+        {'get': 'list', 'post': 'create'}
+    ), name='users'),
     path('', include(djoser_urls)),
     path('', include(router.urls)),
     path(
         'recipes/<int:recipe_id>/favorite/',
         FavoriteViewSet.as_view({'post': 'create', 'delete': 'destroy'}),
         name='favorite'),
-    path(
-        'users/subscriptions/',
-        SubscriptionViewSet.as_view({'get': 'list'}),
-        name='subscriptions-list'),
     path(
         'users/<int:user_id>/subscribe/',
         SubscriptionViewSet.as_view({'post': 'create', 'delete': 'destroy'}),
