@@ -3,14 +3,14 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from django.http import Http404
-from rest_framework import viewsets, status, filters
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 
 from .paginations import CustomPagination
 from .mixins import FavoriteViewSet, SubscriptionViewSet
-from .filters import RecipeFilter
+from .filters import RecipeFilter, IngredientSearchFilter
 from favorites.models import Favorite
 from favorites.serializers import FavoriteSerializer
 from recipes.models import Tag, Ingredient, Recipe
@@ -42,7 +42,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (IngredientSearchFilter, )
     search_fields = ('^name',)
 
 
@@ -99,7 +99,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
         recipe = get_object_or_404(Recipe, id=self.kwargs.get('pk'))
         try:
-            shopping_cart = get_object_or_404(ShoppingCart, user=user, recipe=recipe)
+            shopping_cart = get_object_or_404(
+                ShoppingCart, user=user, recipe=recipe
+            )
         except Http404:
             return Response(
                 'Кажется вы не добавляли этот рецепт в список покупок',

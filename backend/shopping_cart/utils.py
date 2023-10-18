@@ -6,9 +6,10 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+from foodgram_backend.settings import STATIC_ROOT
 from recipes.models import RecipeIngredient
 
-pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
+pdfmetrics.registerFont(TTFont('Arial', f'{STATIC_ROOT}/font/arial.ttf'))
 
 
 def generate_shopping_list(user):
