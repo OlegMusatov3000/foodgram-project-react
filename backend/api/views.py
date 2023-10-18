@@ -2,11 +2,11 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from django.http import Http404
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
-
 
 from .paginations import CustomPagination
 from .mixins import FavoriteViewSet, SubscriptionViewSet
@@ -36,30 +36,27 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    # permission_classes = (AllowAny,)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    # permission_classes = (AllowAny,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+    search_fields = ('^name',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
 
     queryset = Recipe.objects.all()
-    # permission_classes = (AllowAny,)
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
-        if self.action in ('create', 'partial_update'):
-            return RecipeSerializer
-        return RecipeReadOnlySerializer
+        if self.request.method in SAFE_METHODS:
+            return RecipeReadOnlySerializer
+        return RecipeSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -71,8 +68,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, **kwargs):
         user = self.request.user
-        recipe = get_object_or_404(Recipe, id=self.kwargs.get('pk'))
         if request.method == 'POST':
+            try:
+                recipe = get_object_or_404(Recipe, id=self.kwargs.get('pk'))
+            except Http404:
+                return Response(
+                    'Такого рецепта нет',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             if ShoppingCart.objects.filter(
                 user=user,
                 recipe=recipe
@@ -94,8 +97,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
-        get_object_or_404(ShoppingCart, user=user, recipe=recipe)
-        ShoppingCart.objects.get(recipe=recipe).delete()
+        recipe = get_object_or_404(Recipe, id=self.kwargs.get('pk'))
+        try:
+            shopping_cart = get_object_or_404(ShoppingCart, user=user, recipe=recipe)
+        except Http404:
+            return Response(
+                'Кажется вы не добавляли этот рецепт в список покупок',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        shopping_cart.delete()
         return Response(
             'Рецепт успешно удалён из списка покупок.',
             status=status.HTTP_204_NO_CONTENT
@@ -123,10 +133,24 @@ class FavoriteViewSet(FavoriteViewSet):
     lookup_field = 'recipe_id'
 
     def get_recipe(self):
-        return get_object_or_404(Recipe, id=self.kwargs.get(self.lookup_field))
+        return get_object_or_404(
+            Recipe, id=self.kwargs.get(self.lookup_field)
+        )
 
     def perform_create(self, serializer):
-        serializer.save(recipe=self.get_recipe(), user=self.request.user)
+        return serializer.save(
+            recipe=self.get_recipe(), user=self.request.user
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        if not Favorite.objects.filter(
+            recipe=self.get_recipe(), user=self.request.user
+        ).exists():
+            return Response(
+                'Упс, кажется вы не добавляли этот рецепт в избранное.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().destroy(request, *args, **kwargs)
 
 
 class SubscriptionViewSet(SubscriptionViewSet):
@@ -155,7 +179,7 @@ class SubscriptionViewSet(SubscriptionViewSet):
         serializer, _, _ = self.validate_and_get_serializer()
         self.perform_create(serializer)
         return Response(
-            {'Подписка успешно создана': serializer.data},
+            serializer.data,
             status=status.HTTP_201_CREATED
         )
 

@@ -139,6 +139,50 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
+    def validate(self, data):
+        print(1)
+        ingredients = data.get('ingredients')
+        tags = data.get('tags')
+
+        if not ingredients:
+            raise serializers.ValidationError(
+                'Вы забыли добавить ингридиенты.'
+            )
+
+        if not tags:
+            raise serializers.ValidationError(
+                'Вы забыли добавить теги.'
+            )
+
+        ingredients_list = []
+        for ingredient_data in ingredients:
+            amount = ingredient_data.get('amount')
+            if ingredient_data in ingredients_list:
+                raise serializers.ValidationError(
+                    'Ингредиенты повторяются.'
+                )
+            if not Ingredient.objects.filter(
+                id=ingredient_data.get('id')
+            ).exists():
+                raise serializers.ValidationError(
+                    'Несуществующий ингредиент.'
+                )
+            if amount is not None and amount <= 1:
+                raise serializers.ValidationError(
+                    'Нельзя взять ноль ингредиентов.'
+                )
+            ingredients_list.append(ingredient_data)
+
+        tags_list = []
+        for tag_data in tags:
+            if tag_data in tags_list:
+                raise serializers.ValidationError(
+                    'Теги повторяются.'
+                )
+            tags_list.append(tag_data)
+
+        return data
+
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
