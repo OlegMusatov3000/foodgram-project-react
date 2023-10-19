@@ -25,7 +25,8 @@ services:
 
   frontend:
     image: olegmusatov/foodgram_frontend
-    command: cp -r /app/build/. /static/
+    depends_on:
+      - backend
     volumes:
       - static:/app/result_build/build
 
