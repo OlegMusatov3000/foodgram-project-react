@@ -14,8 +14,8 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         recipe_id = self.context['view'].kwargs.get(
-                'recipe_id'
-            )
+            'recipe_id'
+        )
         user = self.context['request'].user
         if self.context['request'].method == 'POST':
             if not Recipe.objects.filter(id=recipe_id).exists():

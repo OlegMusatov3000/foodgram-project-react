@@ -52,14 +52,14 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             if author == user:
                 raise serializers.ValidationError(
                     'Произошла ошибка. Нельзя подписаться на самого себя'
-                    )
+                )
         elif self.context['request'].method == 'DELETE':
             if not Subscription.objects.filter(
                 author__id=author.id, user=user
             ).exists():
                 raise serializers.ValidationError(
-                        'Произошла ошибка. Вы не были подписаны'
-                    )
+                    'Произошла ошибка. Вы не были подписаны'
+                )
         return data
 
     def to_representation(self, instance):
