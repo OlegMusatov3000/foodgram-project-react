@@ -12,7 +12,10 @@ class Command(BaseCommand):
         django.setup()
 
         csv_ingredients_path = 'data/ingredients.csv'
-        data = pd.read_csv(csv_ingredients_path, names=['name', 'measurement_unit'])
+        data = pd.read_csv(
+            csv_ingredients_path,
+            names=['name', 'measurement_unit']
+        )
         for _, row in data.iterrows():
             Ingredient.objects.get_or_create(
                 name=row['name'],
