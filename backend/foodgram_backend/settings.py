@@ -11,7 +11,15 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', default='defaultkey')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_WHITELIST = ['https://akshan3000.ddns.net',]
+ALLOWED_HOSTS = ['158.160.76.71',
+'https://127.0.0.1', 'localhost', 'https://akshan3000-ddns.net']
+CSRF_TRUSTED_ORIGINS = ['https://akshan3000.ddns.net']
+# CORS_ORIGIN_WHITELIST =['*']
+# CSRF_TRUSTED_ORIGINS = ['*']
+# CSRF_TRUSTED_ORIGINS = ['https://akshan3000.ddns.net']
+# ALLOWED_HOSTS = ['158.160.76.71', '127.0.0.1', 'localhost', 'akshan3000.ddns.net'] 
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -121,12 +129,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
+STATIC_URL = '/backend_static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 
 MEDIA_FOR_RECIPES = 'recipes/'
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/backend_media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
