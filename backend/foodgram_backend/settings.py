@@ -20,16 +20,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users.apps.UsersConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
+    'django_filters',
     'recipes.apps.RecipesConfig',
     'subscriptions.apps.SubscriptionsConfig',
     'favorites.apps.FavoritesConfig',
     'shopping_cart.apps.ShoppingCartConfig',
     'api.apps.ApiConfig',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'djoser',
-    'django_filters'
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [

@@ -58,7 +58,9 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author', 'get_photo_preview')
+    list_display = (
+        'name', 'author', 'get_photo_preview', 'get_number_of_favorites_added'
+    )
     list_display_links = ('name', 'author')
     list_filter = ('name', 'author', 'tags')
     search_fields = ('name', 'author')

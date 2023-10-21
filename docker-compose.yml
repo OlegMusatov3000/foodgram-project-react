@@ -16,6 +16,7 @@ services:
       
   backend:
     image: olegmusatov/foodgram_backend
+    # build: ./backend/
     env_file: .env
     depends_on:
       - db
@@ -25,6 +26,9 @@ services:
 
   frontend:
     image: olegmusatov/foodgram_frontend
+    # build:
+    #   context: ./frontend
+    #   dockerfile: Dockerfile
     depends_on:
       - backend
     volumes:
