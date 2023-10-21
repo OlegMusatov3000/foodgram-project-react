@@ -40,7 +40,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Ingredient.objects.all()
+    queryset = Ingredient.objects.all().prefetch_related('recipes')
     serializer_class = IngredientSerializer
     filter_backends = (IngredientSearchFilter, )
     search_fields = ('^name',)
@@ -48,7 +48,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
 
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.all().select_related('author')
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
@@ -130,7 +130,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class FavoriteViewSet(FavoriteViewSet):
 
     serializer_class = FavoriteSerializer
-    queryset = Favorite.objects.all()
+    queryset = Favorite.objects.all().select_related('recipe', 'user')
     permission_classes = (IsAuthenticated,)
     lookup_field = 'recipe_id'
 
@@ -162,7 +162,9 @@ class SubscriptionViewSet(SubscriptionViewSet):
     lookup_field = 'user_id'
 
     def get_queryset(self):
-        return Subscription.objects.filter(user=self.request.user)
+        return Subscription.objects.filter(
+            user=self.request.user
+        ).select_related('author')
 
     def get_author(self):
         return get_object_or_404(User, id=self.kwargs.get(self.lookup_field))
