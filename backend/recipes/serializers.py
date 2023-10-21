@@ -32,6 +32,14 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
+class CookingTimeValidator:
+    def __call__(self, value):
+        if value <= 0:
+            raise serializers.ValidationError(
+                'Время приготовления должно быть больше 0 минут.'
+            )
+
+
 class TagSerializer(serializers.ModelSerializer):
     """Сериализатор тегов."""
     color = Hex2NameColor()
@@ -130,6 +138,9 @@ class RecipeSerializer(serializers.ModelSerializer):
     )
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
+    cooking_time = serializers.IntegerField(
+        validators=[CookingTimeValidator()]
+    )
 
     class Meta:
         model = Recipe
