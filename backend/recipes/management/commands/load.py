@@ -1,4 +1,4 @@
-import django
+from django import setup
 from django.core.management.base import BaseCommand
 import pandas as pd
 
@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Загрузка данных ингредиентов'
 
     def handle(self, *args, **kwargs):
-        django.setup()
+        setup()
 
         csv_ingredients_path = 'data/ingredients.csv'
         data = pd.read_csv(

@@ -15,8 +15,8 @@ services:
       - pg_data_foodgram:/var/lib/postgresql/data
       
   backend:
-    image: olegmusatov/foodgram_backend
-    # build: ./backend/
+    # image: olegmusatov/foodgram_backend
+    build: ./backend/
     env_file: .env
     depends_on:
       - db
@@ -25,10 +25,10 @@ services:
       - backend_media:/app/media
 
   frontend:
-    image: olegmusatov/foodgram_frontend
-    # build:
-    #   context: ./frontend
-    #   dockerfile: Dockerfile
+    # image: olegmusatov/foodgram_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     depends_on:
       - backend
     volumes:

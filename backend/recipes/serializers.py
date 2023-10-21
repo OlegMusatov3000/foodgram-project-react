@@ -2,7 +2,6 @@ import base64
 
 import webcolors
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from recipes.models import Tag, Ingredient, Recipe, RecipeIngredient
@@ -140,7 +139,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        print(1)
         ingredients = data.get('ingredients')
         tags = data.get('tags')
 
@@ -183,35 +181,31 @@ class RecipeSerializer(serializers.ModelSerializer):
 
         return data
 
-    def create(self, validated_data):
+    def save_recipe(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
+        common_data = validated_data.copy()
+        if instance is not None:
+            for field, value in common_data.items():
+                setattr(instance, field, value)
+            instance.save()
+        else:
+            recipe = Recipe.objects.create(**common_data)
+            instance = recipe
         for ingredient in ingredients:
             amount = ingredient['amount']
-            ingredient_obj = get_object_or_404(Ingredient, id=ingredient['id'])
             RecipeIngredient(
-                ingredient=ingredient_obj, amount=amount, recipe=recipe
+                ingredient_id=ingredient['id'],
+                amount=amount, recipe=instance
             ).save()
-        recipe.tags.set(tags)
-        return recipe
+        instance.tags.set(tags)
+        return instance
+
+    def create(self, validated_data):
+        return self.save_recipe(None, validated_data)
 
     def update(self, instance, validated_data):
-        if 'ingredients' in validated_data:
-            ingredients = validated_data.pop('ingredients')
-            RecipeIngredient.objects.filter(recipe=instance).delete()
-            for ingredient in ingredients:
-                amount = ingredient['amount']
-                ingredient_obj = get_object_or_404(
-                    Ingredient, id=ingredient['id']
-                )
-                RecipeIngredient(
-                    ingredient=ingredient_obj, amount=amount, recipe=instance
-                ).save()
-        if 'tags' in validated_data:
-            tags = validated_data.pop('tags')
-            instance.tags.set(tags)
-        return super().update(instance, validated_data)
+        return self.save_recipe(instance, validated_data)
 
     def to_representation(self, instance):
         return RecipeReadOnlySerializer(
