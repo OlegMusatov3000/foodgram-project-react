@@ -4,3 +4,7 @@ dockerhub_username: olegmusatov
 test user: 
   почта: a@a.ru
   пароль: admin110897
+admin super user:
+  Имя пользователя: admin123
+  почта: A@a.ru
+  пароль: admin110897

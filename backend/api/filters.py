@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django_filters.rest_framework import FilterSet, filters
 from rest_framework.filters import SearchFilter
 
@@ -36,8 +37,11 @@ class RecipeFilter(FilterSet):
             'shopping_cart_recipe'
         )
         if self.request.user.is_authenticated:
-            filter_kwargs = {f'{related_name}__user': self.request.user}
-            return queryset.filter(**filter_kwargs) if value else (
-                queryset.exclude(**filter_kwargs)
-            )
+            user_filter = Q(**{f'{related_name}__user': self.request.user})
+
+            if value:
+                return queryset.filter(user_filter)
+            else:
+                return queryset.exclude(user_filter)
+
         return queryset
