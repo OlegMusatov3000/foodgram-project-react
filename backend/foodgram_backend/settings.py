@@ -132,3 +132,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
+CSV_INGREDIENTS_PATH = 'data/ingredients.csv'
+CSV_TAGS_PATH = 'data/tags.csv'

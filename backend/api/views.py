@@ -40,7 +40,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Ingredient.objects.all().prefetch_related('recipes')
+    queryset = Ingredient.objects.prefetch_related('recipes')
     serializer_class = IngredientSerializer
     filter_backends = (IngredientSearchFilter, )
     search_fields = ('^name',)
@@ -48,12 +48,13 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
 
-    queryset = Recipe.objects.all().select_related('author')
+    queryset = Recipe.objects.select_related('author')
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
+
         if self.request.method in SAFE_METHODS:
             return RecipeReadOnlySerializer
         return RecipeSerializer
@@ -68,6 +69,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, **kwargs):
         user = self.request.user
+
         if request.method == 'POST':
             try:
                 recipe = get_object_or_404(Recipe, id=self.kwargs.get('pk'))
@@ -76,6 +78,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     'Такого рецепта нет',
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
             if ShoppingCart.objects.filter(
                 user=user,
                 recipe=recipe
@@ -87,6 +90,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer = ShoppingCartSerializer(
                 data=request.data, partial=True
             )
+
             if serializer.is_valid(raise_exception=True):
                 serializer.save(user=user, recipe=recipe)
                 return Response(
@@ -97,6 +101,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
+
         recipe = get_object_or_404(Recipe, id=self.kwargs.get('pk'))
         try:
             shopping_cart = get_object_or_404(
@@ -119,7 +124,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def download_shopping_cart(self, request):
+
         user = User.objects.get(id=self.request.user.id)
+
         if user.shopping_cart_user.exists():
             return generate_shopping_cart_pdf(request, user)
         return Response(
@@ -130,7 +137,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class FavoriteViewSet(FavoriteViewSet):
 
     serializer_class = FavoriteSerializer
-    queryset = Favorite.objects.all().select_related('recipe', 'user')
+    queryset = Favorite.objects.select_related('recipe', 'user')
     permission_classes = (IsAuthenticated,)
     lookup_field = 'recipe_id'
 
@@ -145,6 +152,7 @@ class FavoriteViewSet(FavoriteViewSet):
         )
 
     def destroy(self, request, *args, **kwargs):
+
         if not Favorite.objects.filter(
             recipe=self.get_recipe(), user=self.request.user
         ).exists():

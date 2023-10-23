@@ -1,7 +1,7 @@
 import base64
-
 import webcolors
 from django.core.files.base import ContentFile
+from django.db import transaction
 from rest_framework import serializers
 
 from recipes.models import Tag, Ingredient, Recipe, RecipeIngredient
@@ -196,20 +196,27 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         common_data = validated_data.copy()
+
         if instance is not None:
             for field, value in common_data.items():
                 setattr(instance, field, value)
             instance.save()
+
         else:
-            recipe = Recipe.objects.create(**common_data)
-            instance = recipe
+            instance = Recipe.objects.create(**common_data)
+
+        recipe_ingredients = []
         for ingredient in ingredients:
             amount = ingredient['amount']
-            RecipeIngredient(
+            recipe_ingredients.append(RecipeIngredient(
                 ingredient_id=ingredient['id'],
-                amount=amount, recipe=instance
-            ).save()
-        instance.tags.set(tags)
+                amount=amount,
+                recipe=instance
+            ))
+
+        with transaction.atomic():
+            RecipeIngredient.objects.bulk_create(recipe_ingredients)
+            instance.tags.set(tags)
         return instance
 
     def create(self, validated_data):

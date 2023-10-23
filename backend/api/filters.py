@@ -39,9 +39,8 @@ class RecipeFilter(FilterSet):
         if self.request.user.is_authenticated:
             user_filter = Q(**{f'{related_name}__user': self.request.user})
 
-            if value:
-                return queryset.filter(user_filter)
-            else:
-                return queryset.exclude(user_filter)
+            return queryset.filter(user_filter) if value else (
+                queryset.filter(~user_filter)
+            )
 
         return queryset

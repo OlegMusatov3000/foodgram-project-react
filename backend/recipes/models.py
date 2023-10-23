@@ -38,7 +38,7 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
 
-    name = models.CharField('Название', max_length=200)
+    name = models.CharField('Название', max_length=200, unique=True)
     measurement_unit = models.CharField('ед. измерения', max_length=200)
 
     class Meta:
@@ -97,7 +97,8 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        verbose_name = ''
+        verbose_name = 'Ингредиент рецепта'
+        verbose_name_plural = 'Ингредиенты рецепта'
 
 
 class RecipeTag(models.Model):
@@ -110,4 +111,5 @@ class RecipeTag(models.Model):
     )
 
     class Meta:
-        verbose_name = ''
+        verbose_name = 'Тег рецепта'
+        verbose_name_plural = 'Теги рецепта'
