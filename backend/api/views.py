@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
@@ -22,7 +22,7 @@ from subscriptions.models import Subscription
 from subscriptions.serializers import SubscriptionSerializer
 from shopping_cart.models import ShoppingCart
 from shopping_cart.serializers import ShoppingCartSerializer
-from shopping_cart.utils import generate_shopping_cart_pdf
+from shopping_cart.utils import generate_pdf_file
 
 User = get_user_model()
 
@@ -128,7 +128,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = User.objects.get(id=self.request.user.id)
 
         if user.shopping_cart_user.exists():
-            return generate_shopping_cart_pdf(request, user)
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = (
+                'attachment; filename="shopping_list.pdf"'
+            )
+            response.write(generate_pdf_file(user))
+            return response
         return Response(
             'Ошибка. Список покупок пуст', status=status.HTTP_404_NOT_FOUND
         )

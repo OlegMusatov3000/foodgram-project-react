@@ -6,7 +6,10 @@ from recipes.models import Ingredient, Tag
 
 
 class Command(BaseCommand):
-    help = 'Загрузка данных ингредиентов'
+    help = (
+        'Команда выполняет загрузку данных ингредиентов '
+        'и тегов из CSV файлов в базу данных'
+    )
 
     def handle(self, *args, **kwargs):
         data = pd.read_csv(

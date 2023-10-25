@@ -12,7 +12,7 @@ from recipes.models import RecipeIngredient
 pdfmetrics.registerFont(TTFont('Arial', f'{STATIC_ROOT}/font/arial.ttf'))
 
 
-def generate_shopping_list(user):
+def generate_pdf_file(user):
     ingredients = RecipeIngredient.objects.filter(
         recipe__shopping_cart_recipe__user=user
     ).values(
@@ -29,16 +29,6 @@ def generate_shopping_list(user):
             f'{ingredient["ingredient__measurement_unit"]}\n'
         )
 
-    return shopping_list
-
-
-def generate_shopping_cart_pdf(request, user):
-    shopping_list = generate_shopping_list(user)
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = (
-        'attachment; filename="shopping_list.pdf"'
-    )
     buffer = BytesIO()
     p = canvas.Canvas(buffer)
     p.setFont('Arial', 12)
@@ -55,6 +45,5 @@ def generate_shopping_cart_pdf(request, user):
 
     pdf = buffer.getvalue()
     buffer.close()
-    response.write(pdf)
 
-    return response
+    return pdf
